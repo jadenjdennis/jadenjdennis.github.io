@@ -1,0 +1,353 @@
+---
+import { provider } from '../lib/sports';
+
+const teams = [
+  { key: 'lions', name: 'Detroit Lions' },
+  { key: 'pistons', name: 'Detroit Pistons' },
+] as const;
+---
+
+<section class="scoreboard" aria-labelledby="scoreboard-title" data-scoreboard>
+  <div class="scoreboard__head">
+    <h2 id="scoreboard-title">Detroit scoreboard</h2>
+    <button type="button" class="scoreboard__refresh" data-refresh>
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M20 11a8 8 0 1 0-2.3 5.7M20 4v7h-7"></path>
+      </svg>
+      <span>Refresh</span>
+    </button>
+  </div>
+
+  <div class="scoreboard__teams">
+    {
+      teams.map((t) => (
+        <article class="team" data-team={t.key} aria-busy="true">
+          <h3>{t.name}</h3>
+          <p class="team__state" role="status" aria-live="polite">Loading…</p>
+          <div class="team__body" data-body hidden></div>
+        </article>
+      ))
+    }
+  </div>
+
+  <p class="scoreboard__meta" data-meta>
+    Source: <a href={provider.sourceHomepage} rel="noopener">{provider.sourceLabel}</a>’s public data.
+    <noscript> Live scores need JavaScript.</noscript>
+  </p>
+</section>
+
+<style>
+  .scoreboard {
+    display: grid;
+    gap: 1.5rem;
+  }
+  .scoreboard__head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+  .scoreboard h2 {
+    font-size: clamp(1.4rem, 1.2rem + 0.8vw, 1.8rem);
+    letter-spacing: -0.01em;
+  }
+  .scoreboard__refresh {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: 2.75rem;
+    padding: 0 0.25rem;
+    background: none;
+    border: 0;
+    font-size: var(--text-sm);
+    color: var(--ink-muted);
+    cursor: pointer;
+    transition: color 0.2s ease;
+  }
+  .scoreboard__refresh:hover:not(:disabled) {
+    color: var(--accent);
+  }
+  .scoreboard__refresh:disabled {
+    cursor: default;
+    opacity: 0.6;
+  }
+  .scoreboard__refresh[data-loading] svg {
+    animation: spin 1s linear infinite;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .scoreboard__refresh[data-loading] svg {
+      animation: none;
+    }
+  }
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  .scoreboard__teams {
+    display: grid;
+    gap: 0;
+    border-top: 1px solid var(--line);
+  }
+  .team {
+    display: grid;
+    gap: 0.6rem;
+    align-content: start;
+    padding-block: 1.25rem;
+    border-bottom: 1px solid var(--line);
+  }
+  .team h3 {
+    font-size: 1.25rem;
+  }
+  .team__state {
+    font-size: var(--text-sm);
+    color: var(--ink-muted);
+  }
+  .team__state[data-tone='error'] {
+    color: var(--ink);
+  }
+  .team__state:empty {
+    display: none;
+  }
+
+  /* Filled by script */
+  .team :global(.team__record) {
+    display: flex;
+    align-items: baseline;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+  }
+  .team :global(.team__record strong) {
+    font-family: var(--font-serif);
+    font-weight: 400;
+    font-size: 2.25rem;
+    line-height: 1;
+    color: var(--ink);
+    font-variant-numeric: tabular-nums;
+  }
+  .team :global(.team__record span) {
+    font-size: var(--text-sm);
+    color: var(--ink-muted);
+  }
+  .team :global(dl) {
+    display: grid;
+    gap: 0.45rem;
+    margin: 0.75rem 0 0;
+    font-size: var(--text-sm);
+  }
+  .team :global(dl > div) {
+    display: grid;
+    grid-template-columns: 4.25rem minmax(0, 1fr);
+    gap: 0.75rem;
+  }
+  .team :global(dt) {
+    color: var(--ink-muted);
+  }
+  .team :global(dd) {
+    margin: 0;
+    color: var(--ink-body);
+  }
+  .team :global(dd .tabular),
+  .team :global(dd time) {
+    font-variant-numeric: tabular-nums;
+  }
+  .team :global(.is-unavailable) {
+    color: var(--ink-muted);
+  }
+
+  .scoreboard__meta {
+    font-size: var(--text-xs);
+    color: var(--ink-muted);
+    line-height: 1.6;
+  }
+  .scoreboard__meta :global(.stale) {
+    display: block;
+    margin-top: 0.35rem;
+    color: var(--ink);
+  }
+
+  @media (min-width: 48rem) {
+    .scoreboard__teams {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      column-gap: var(--col-gap);
+    }
+    .team + .team {
+      border-left: 0;
+    }
+  }
+</style>
+
+<script>
+  import { TEAM_KEYS, loadTeam, provider } from '../lib/sports';
+  import type { GameSummary, LoadResult, SportsError, TeamKey, TeamSnapshot } from '../lib/sports';
+
+  const root = document.querySelector<HTMLElement>('[data-scoreboard]');
+  if (root) init(root);
+
+  function init(root: HTMLElement) {
+    const refreshBtn = root.querySelector<HTMLButtonElement>('[data-refresh]')!;
+    const meta = root.querySelector<HTMLElement>('[data-meta]')!;
+    const cards = new Map<TeamKey, HTMLElement>();
+    root.querySelectorAll<HTMLElement>('[data-team]').forEach((el) => cards.set(el.dataset.team as TeamKey, el));
+
+    const dateFmt = new Intl.DateTimeFormat(undefined, { weekday: 'short', month: 'short', day: 'numeric' });
+    const dateTimeFmt = new Intl.DateTimeFormat(undefined, {
+      weekday: 'short',
+      month: 'short',
+      day: 'numeric',
+      hour: 'numeric',
+      minute: '2-digit',
+      timeZoneName: 'short',
+    });
+    const timeFmt = new Intl.DateTimeFormat(undefined, { hour: 'numeric', minute: '2-digit', timeZoneName: 'short' });
+    const dayTimeFmt = new Intl.DateTimeFormat(undefined, { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
+
+    const el = <K extends keyof HTMLElementTagNameMap>(tag: K, text?: string, cls?: string) => {
+      const node = document.createElement(tag);
+      if (text !== undefined) node.textContent = text;
+      if (cls) node.className = cls;
+      return node;
+    };
+    const row = (term: string, ...desc: (Node | string)[]) => {
+      const wrap = el('div');
+      wrap.append(el('dt', term));
+      const dd = el('dd');
+      dd.append(...desc);
+      wrap.append(dd);
+      return wrap;
+    };
+    const score = (g: GameSummary) => `${g.scoreFor}–${g.scoreAgainst}`;
+    const vs = (g: GameSummary) => `${g.home ? 'vs' : 'at'} ${g.opponent}`;
+
+    function describeError(e: SportsError): string {
+      switch (e.kind) {
+        case 'rate-limited':
+          return 'The data source is asking for fewer requests. Try again in a minute.';
+        case 'timeout':
+          return 'The data source took too long to respond.';
+        case 'parse':
+          return 'The data source sent something unexpected.';
+        case 'http':
+          return `The data source answered with an error${e.status ? ` (${e.status})` : ''}.`;
+        default:
+          return 'Couldn’t reach the data source.';
+      }
+    }
+
+    function renderBody(snap: TeamSnapshot): HTMLElement {
+      const body = el('div');
+      const rec = el('p', undefined, 'team__record');
+      if (snap.record) {
+        rec.append(el('strong', snap.record.replace('-', '–')), el('span', snap.standing ?? ''));
+      } else {
+        rec.append(el('span', 'Record unavailable', 'is-unavailable'));
+      }
+      body.append(rec);
+
+      const dl = el('dl');
+      if (snap.liveGame) {
+        const g = snap.liveGame;
+        dl.append(row('Live', `${vs(g)}: `, el('span', score(g), 'tabular'), g.statusDetail ? ` · ${g.statusDetail}` : ''));
+      }
+      if (snap.lastGame && snap.lastGame.scoreFor !== undefined) {
+        const g = snap.lastGame;
+        const word = g.result === 'W' ? 'Won' : g.result === 'L' ? 'Lost' : 'Tied';
+        dl.append(row('Last', `${word} `, el('span', score(g), 'tabular'), ` ${vs(g)}, ${dateFmt.format(new Date(g.date))}`));
+      } else {
+        dl.append(row('Last', el('span', 'No completed game listed', 'is-unavailable')));
+      }
+      if (snap.nextGame) {
+        const g = snap.nextGame;
+        dl.append(row('Next', el('time', dateTimeFmt.format(new Date(g.date))), ` ${vs(g)}`));
+      } else {
+        dl.append(row('Next', el('span', 'No upcoming game listed', 'is-unavailable')));
+      }
+      body.append(dl);
+      return body;
+    }
+
+    function render(team: TeamKey, result: LoadResult) {
+      const card = cards.get(team)!;
+      const state = card.querySelector<HTMLElement>('.team__state')!;
+      const body = card.querySelector<HTMLElement>('[data-body]')!;
+      card.setAttribute('aria-busy', 'false');
+      state.removeAttribute('data-tone');
+      if (result.status === 'error') {
+        body.hidden = true;
+        body.replaceChildren();
+        state.dataset.tone = 'error';
+        state.textContent = `Unavailable. ${describeError(result.error)} Nothing is shown rather than a guess.`;
+        return;
+      }
+      state.textContent = result.status === 'stale' ? 'Showing saved data (live source unavailable).' : '';
+      body.replaceChildren(renderBody(result.snapshot));
+      body.hidden = false;
+    }
+
+    function renderMeta(results: Map<TeamKey, LoadResult>) {
+      const snaps = [...results.values()].flatMap((r) => (r.status === 'error' ? [] : [r]));
+      meta.replaceChildren();
+      const src = document.createElement('a');
+      src.href = provider.sourceHomepage;
+      src.rel = 'noopener';
+      src.textContent = provider.sourceLabel;
+      meta.append('Source: ', src, '’s public data. ');
+
+      if (snaps.length === 0) {
+        meta.append('Last updated: unavailable.');
+        return;
+      }
+      const freshest = Math.max(...snaps.map((s) => s.snapshot.fetchedAt));
+      const anyStale = snaps.some((s) => s.status === 'stale');
+      meta.append(
+        anyStale ? 'Saved ' : 'Last updated ',
+        el('time', anyStale ? dayTimeFmt.format(freshest) : timeFmt.format(freshest), 'tabular'),
+        '.',
+      );
+      if (anyStale) {
+        const oldest = Math.min(...snaps.filter((s) => s.status === 'stale').map((s) => s.snapshot.fetchedAt));
+        const hours = Math.round((Date.now() - oldest) / 36e5);
+        meta.append(
+          el('span', `Stale: the live source didn’t respond, so this is older saved data${hours >= 1 ? ` (about ${hours}h old)` : ''}.`, 'stale'),
+        );
+      }
+    }
+
+    let inFlight = false;
+    let lastRun = 0;
+    // Short cooldown so the button can't hammer a free public endpoint.
+    const COOLDOWN_MS = 10_000;
+
+    async function refresh() {
+      if (inFlight) return;
+      inFlight = true;
+      lastRun = Date.now();
+      refreshBtn.disabled = true;
+      refreshBtn.dataset.loading = '';
+      cards.forEach((c) => {
+        c.setAttribute('aria-busy', 'true');
+        const state = c.querySelector<HTMLElement>('.team__state')!;
+        if (c.querySelector<HTMLElement>('[data-body]')!.hidden) state.textContent = 'Loading…';
+      });
+      const results = new Map<TeamKey, LoadResult>();
+      await Promise.all(
+        TEAM_KEYS.map(async (team) => {
+          const result = await loadTeam(team);
+          results.set(team, result);
+          render(team, result);
+        }),
+      );
+      renderMeta(results);
+      inFlight = false;
+      delete refreshBtn.dataset.loading;
+      setTimeout(() => (refreshBtn.disabled = false), COOLDOWN_MS);
+    }
+
+    refreshBtn.addEventListener('click', refresh);
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible' && Date.now() - lastRun > 10 * 60_000) refresh();
+    });
+    refresh();
+  }
+</script>

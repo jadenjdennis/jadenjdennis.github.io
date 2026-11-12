@@ -1,0 +1,109 @@
+---
+import { Image } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
+
+/**
+ * Renders a real, optimised photo when the file exists in src/assets/, and a clearly
+ * labelled placeholder until then. Never substitutes stock or generated imagery.
+ *
+ * Asset paths are relative to src/assets/ and WITHOUT an extension:
+ *   <Photo src="photos/portrait" ratio="4 / 5" ... />
+ * will pick up src/assets/photos/portrait.jpg | .jpeg | .png | .webp | .avif.
+ * See README.md for the full asset list and recommended sizes.
+ */
+interface Props {
+  src: string;
+  /** Describe the real photo once it exists. Required for a meaningful alt text. */
+  alt?: string;
+  /** CSS aspect-ratio, e.g. "4 / 5". */
+  ratio: string;
+  /** Short name shown on the placeholder, e.g. "Portrait". */
+  label: string;
+  /** Recommended pixel width of the source file, shown in the README and data attribute. */
+  recommended?: string;
+  sizes?: string;
+  loading?: 'eager' | 'lazy';
+  class?: string;
+}
+
+const { src, alt, ratio, label, recommended, sizes, loading = 'lazy', class: className } = Astro.props;
+
+const files = import.meta.glob<{ default: ImageMetadata }>('/src/assets/**/*.{jpg,jpeg,png,webp,avif}', {
+  eager: true,
+});
+const key = Object.keys(files).find((k) => k.startsWith(`/src/assets/${src}.`));
+const image = key ? files[key].default : undefined;
+const [rw, rh] = ratio.split('/').map((n) => Number(n.trim()));
+---
+
+{
+  image ? (
+    <div class:list={['photo', className]} style={`aspect-ratio:${ratio}`}>
+      <Image src={image} alt={alt ?? ''} sizes={sizes} loading={loading} widths={[480, 800, 1200, 1600]} />
+    </div>
+  ) : (
+    <div
+      class:list={['photo', 'photo--placeholder', className]}
+      style={`aspect-ratio:${ratio}`}
+      data-asset={`src/assets/${src}.jpg`}
+      data-recommended={recommended}
+      role="img"
+      aria-label={`${label} placeholder. The photo has not been added yet.`}
+    >
+      <svg class="photo__lines" viewBox={`0 0 ${rw * 20} ${rh * 20}`} preserveAspectRatio="none" aria-hidden="true">
+        <defs>
+          <pattern id={`hatch-${src.replace(/\W/g, '')}`} width="14" height="14" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+            <line x1="0" y1="0" x2="0" y2="14" stroke="currentColor" stroke-width="1"></line>
+          </pattern>
+        </defs>
+        <rect width="100%" height="100%" fill={`url(#hatch-${src.replace(/\W/g, '')})`}></rect>
+      </svg>
+      <span class="photo__name">{label}</span>
+      <span class="photo__note">Photo to come</span>
+    </div>
+  )
+}
+
+<style>
+  .photo {
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+    background: var(--bg-raised);
+  }
+  .photo :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .photo--placeholder {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: clamp(0.85rem, 2vw, 1.25rem);
+    color: var(--ink-muted);
+    background: var(--bg-raised);
+    border: 1px dashed var(--line-strong);
+  }
+  .photo__lines {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    color: var(--ink);
+    opacity: 0.06;
+  }
+  .photo__name {
+    position: relative;
+    font-family: var(--font-serif);
+    font-size: clamp(1.25rem, 1rem + 1vw, 1.75rem);
+    color: var(--ink);
+  }
+  .photo__note {
+    position: relative;
+    font-size: var(--text-xs);
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+</style>

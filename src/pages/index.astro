@@ -1,0 +1,32 @@
+---
+import Base from '../layouts/Base.astro';
+import Hero from '../components/sections/Hero.astro';
+import About from '../components/sections/About.astro';
+import Interests from '../components/sections/Interests.astro';
+import Projects from '../components/sections/Projects.astro';
+import Journey from '../components/sections/Journey.astro';
+import Blog from '../components/sections/Blog.astro';
+import Contact from '../components/sections/Contact.astro';
+import { getPosts, getProjects } from '../lib/content';
+import { site } from '../config/site';
+
+const [posts, projects] = await Promise.all([getPosts(), getProjects()]);
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Person',
+  name: site.fullName,
+  url: site.url,
+  sameAs: [site.contact.github.href, site.contact.linkedin.href],
+};
+---
+
+<Base path="/" description={site.description} jsonLd={jsonLd}>
+  <Hero />
+  <About />
+  <Interests />
+  <Projects projects={projects} />
+  <Journey />
+  <Blog posts={posts} />
+  <Contact />
+</Base>

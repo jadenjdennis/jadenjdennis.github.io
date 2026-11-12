@@ -1,0 +1,106 @@
+---
+import Section from '../Section.astro';
+import PostRow from '../PostRow.astro';
+import CategoryList from '../CategoryList.astro';
+import ArrowIcon from '../ArrowIcon.astro';
+import { categoryFor, formatDate, isoDate, readingMinutes, type Post } from '../../lib/content';
+import { withBase } from '../../lib/url';
+
+interface Props {
+  posts: Post[];
+}
+const { posts } = Astro.props;
+
+const featured = posts.find((p) => p.data.featured);
+const latest = posts.filter((p) => p !== featured).slice(0, 4);
+const counts = Object.fromEntries(
+  ['things-im-learning', 'faith-and-life', 'interesting-ideas'].map((slug) => [
+    slug,
+    posts.filter((p) => p.data.category === slug).length,
+  ]),
+);
+---
+
+<Section id="blog" title="Blog" hint="Notes and essays." compact={posts.length === 0}>
+  <div class="blog">
+    {
+      featured && (
+        <article class="featured">
+          <h3>
+            <a href={withBase(`/blog/${featured.id}/`)}>{featured.data.title}</a>
+          </h3>
+          <p class="featured__desc">{featured.data.description}</p>
+          <p class="featured__meta">
+            Featured · <time class="tabular" datetime={isoDate(featured.data.date)}>{formatDate(featured.data.date)}</time> ·{' '}
+            {categoryFor(featured.data.category).title} · {featured.data.kind === 'essay' ? 'Essay' : 'Note'} ·{' '}
+            <span class="tabular">{readingMinutes(featured.body)} min read</span>
+          </p>
+        </article>
+      )
+    }
+
+    {
+      posts.length > 0 ? (
+        latest.length > 0 && <ul>{latest.map((p) => <PostRow post={p} />)}</ul>
+      ) : (
+        <div class="empty">
+          <p class="lead">Nothing published yet.</p>
+          <p>
+            When I write, short notes and longer essays will land in one of the three places below. A notebook
+            first, a publication when something settles.
+          </p>
+        </div>
+      )
+    }
+
+    <CategoryList counts={counts} />
+
+    {
+      posts.length > 0 && (
+        <a class="arrow-link" href={withBase('/blog/')}>
+          All writing <ArrowIcon />
+        </a>
+      )
+    }
+  </div>
+</Section>
+
+<style>
+  .blog {
+    display: grid;
+    gap: clamp(2rem, 1.5rem + 2vw, 3.25rem);
+    justify-items: start;
+  }
+  .blog > :global(ul),
+  .blog > :global(nav) {
+    width: 100%;
+  }
+  .empty {
+    display: grid;
+    gap: 1rem;
+    max-width: 52ch;
+  }
+  .featured {
+    display: grid;
+    gap: 0.9rem;
+    max-width: 44rem;
+  }
+  .featured h3 {
+    font-size: var(--text-h2);
+    line-height: 1.06;
+  }
+  .featured h3 a {
+    text-decoration: none;
+  }
+  .featured h3 a:hover {
+    color: var(--accent);
+  }
+  .featured__desc {
+    color: var(--ink-body);
+    max-width: 52ch;
+  }
+  .featured__meta {
+    font-size: var(--text-sm);
+    color: var(--ink-muted);
+  }
+</style>

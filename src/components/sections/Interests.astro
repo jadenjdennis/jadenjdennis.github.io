@@ -1,0 +1,121 @@
+---
+import Section from '../Section.astro';
+import Photo from '../Photo.astro';
+import Todo from '../Todo.astro';
+import { interestGroups } from '../../data/interests';
+
+const [learning, ...rest] = interestGroups;
+---
+
+<Section id="interests" title="Interests & Exploration" hint="What I’m curious about.">
+  <div class="topics">
+    <div class="topics__col">
+      <div class="group">
+        <h3 class="label group__label">{learning.label}</h3>
+        <ul class="topic-list">
+          {
+            learning.items.map((item) => (
+              <li class="topic">
+                <span class="topic__name">{item.name}</span>
+                {item.note && <span class="topic__note">{item.note}</span>}
+              </li>
+            ))
+          }
+        </ul>
+        {learning.todo && <Todo>{learning.todo.replace(/^TODO\s*/, '')}</Todo>}
+      </div>
+    </div>
+
+    <div class="topics__col">
+      {
+        rest.map((group) => (
+          <div class="group">
+            <h3 class="label group__label">{group.label}</h3>
+            <ul class="topic-list">
+              {group.items.map((item) => (
+                <li class="topic">
+                  <span class="topic__name">{item.name}</span>
+                  {item.note && <span class="topic__note">{item.note}</span>}
+                </li>
+              ))}
+            </ul>
+            {group.todo && <Todo>{group.todo.replace(/^TODO\s*/, '')}</Todo>}
+          </div>
+        ))
+      }
+      <Photo
+        class="topics__photo"
+        src="photos/candid-interests"
+        ratio="3 / 2"
+        label="Candid"
+        alt="TODO: describe the photo"
+        recommended="1600 × 1067 px"
+        sizes="(min-width: 56rem) 30vw, 90vw"
+      />
+    </div>
+  </div>
+</Section>
+
+<style>
+  .topics {
+    display: grid;
+    gap: clamp(2.5rem, 2rem + 3vw, 4rem);
+  }
+  .topics__col {
+    display: grid;
+    gap: clamp(2rem, 1.5rem + 2vw, 3rem);
+    align-content: start;
+  }
+  .group {
+    display: grid;
+    gap: 0.9rem;
+  }
+  .group__label {
+    margin: 0;
+    font-family: var(--font-sans);
+    font-size: var(--text-xs);
+    line-height: 1.4;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+  .topic-list {
+    border-bottom: 1px solid var(--line);
+  }
+  .topic {
+    display: grid;
+    gap: 0.2rem;
+    padding-block: 0.85rem;
+    border-top: 1px solid var(--line);
+    transition: opacity 0.3s ease;
+  }
+  .topic__name {
+    font-family: var(--font-serif);
+    font-size: clamp(1.25rem, 1.1rem + 0.7vw, 1.65rem);
+    line-height: 1.15;
+    color: var(--ink);
+    transition: transform 0.4s var(--ease-out), color 0.2s ease;
+  }
+  .topic__note {
+    font-size: var(--text-sm);
+    color: var(--ink-muted);
+    max-width: 44ch;
+  }
+
+  /* Hovering one topic quietly pushes the rest back. Pointer-only; nothing depends on it. */
+  @media (hover: hover) {
+    .topic-list:has(.topic:hover) .topic:not(:hover) {
+      opacity: 0.45;
+    }
+    .topic:hover .topic__name {
+      color: var(--accent);
+      transform: translateX(0.5rem);
+    }
+  }
+
+  @media (min-width: 48rem) {
+    .topics {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      column-gap: var(--col-gap);
+    }
+  }
+</style>

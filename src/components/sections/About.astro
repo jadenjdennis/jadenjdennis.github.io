@@ -1,0 +1,68 @@
+---
+import Section from '../Section.astro';
+import Photo from '../Photo.astro';
+import Todo from '../Todo.astro';
+---
+
+<Section id="about" title="About" hint="A short, honest introduction.">
+  <div class="about">
+    <p class="lead">I’m Jaden, someone who enjoys understanding how things work.</p>
+
+    <div class="about__cols">
+      <div class="about__text">
+        <p>
+          This site is more notebook than résumé: an honest, evolving record of what I’m exploring and
+          learning, and where I’m heading.
+        </p>
+        <Todo>
+          (Jaden) A short paragraph in your own words: where you’re based and what a normal week looks like.
+          Only what you’re comfortable making public.
+        </Todo>
+      </div>
+
+      <Photo
+        class="about__photo"
+        src="photos/candid-about"
+        ratio="4 / 3"
+        label="Candid"
+        alt="TODO: describe the photo"
+        recommended="1600 × 1200 px"
+        sizes="(min-width: 56rem) 28vw, 90vw"
+      />
+    </div>
+  </div>
+</Section>
+
+<style>
+  .about {
+    display: grid;
+    gap: clamp(2rem, 1rem + 4vw, 4rem);
+  }
+  .about__cols {
+    display: grid;
+    gap: 2rem;
+    align-items: start;
+  }
+  .about__text {
+    display: grid;
+    gap: 1.25rem;
+    max-width: 54ch;
+  }
+  .about__text p:first-child {
+    color: var(--ink-body);
+  }
+  :global(.about__photo) {
+    max-width: 26rem;
+  }
+
+  @media (min-width: 56rem) {
+    .about__cols {
+      grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+      column-gap: var(--col-gap);
+    }
+    :global(.about__photo) {
+      margin-top: 3.5rem;
+      justify-self: end;
+    }
+  }
+</style>

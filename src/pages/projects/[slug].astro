@@ -1,0 +1,198 @@
+---
+import { render } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import Photo from '../../components/Photo.astro';
+import Todo from '../../components/Todo.astro';
+import ArrowIcon from '../../components/ArrowIcon.astro';
+import { getProjects, statusLabel } from '../../lib/content';
+import { withBase } from '../../lib/url';
+
+export async function getStaticPaths() {
+  const projects = await getProjects();
+  return projects.map((project) => ({ params: { slug: project.id }, props: { project } }));
+}
+
+const { project } = Astro.props;
+const { Content } = await render(project);
+const { title, summary, motivation, approach, status, tools, links, placeholder } = project.data;
+const hasNotes = Boolean(project.body?.trim());
+---
+
+<Base title={title} description={summary} path={`/projects/${project.id}/`} current="projects" noindex={placeholder}>
+  <article class="wrap project grid12">
+    <header class="project__head">
+      <p><a class="arrow-link back" href={withBase('/projects/')}>← All projects</a></p>
+      {
+        placeholder && (
+          <p class="banner">
+            <span class="banner__tag">Placeholder</span> Sample project for layout work. Hidden from the production build.
+          </p>
+        )
+      }
+      <h1>{title}</h1>
+      <p class="lead">{summary}</p>
+    </header>
+
+    <aside class="project__facts" aria-label="Project facts">
+      <dl>
+        <div>
+          <dt class="label">Status</dt>
+          <dd>{statusLabel[status]}</dd>
+        </div>
+        <div>
+          <dt class="label">Tools</dt>
+          <dd>
+            {tools.length > 0 ? tools.join(' · ') : <Todo inline>(Jaden) list the tools or technology used.</Todo>}
+          </dd>
+        </div>
+        <div>
+          <dt class="label">Links</dt>
+          <dd>
+            {
+              links.length > 0 ? (
+                <ul>
+                  {links.map((l) => (
+                    <li>
+                      <a href={l.href} rel="noopener">
+                        {l.label} <ArrowIcon dir="up-right" size={16} />
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <Todo inline>(Jaden) add a repository or demo link, if there is one.</Todo>
+              )
+            }
+          </dd>
+        </div>
+      </dl>
+    </aside>
+
+    <div class="project__body">
+      <section aria-labelledby="why">
+        <h2 id="why">Why</h2>
+        {motivation ? <p>{motivation}</p> : <Todo>(Jaden) What problem or curiosity started this?</Todo>}
+      </section>
+
+      <section aria-labelledby="how">
+        <h2 id="how">Approach</h2>
+        {approach ? <p>{approach}</p> : <Todo>(Jaden) How are you going about it?</Todo>}
+      </section>
+
+      <section aria-labelledby="look">
+        <h2 id="look">Screenshots</h2>
+        <Photo
+          src={`projects/${project.id}`}
+          ratio="16 / 10"
+          label="Screenshot"
+          alt={`Screenshot of ${title}`}
+          recommended="1600 × 1000 px"
+          sizes="(min-width: 56rem) 60vw, 90vw"
+        />
+      </section>
+
+      {
+        hasNotes && (
+          <section aria-labelledby="notes">
+            <h2 id="notes">Notes</h2>
+            <div class="prose">
+              <Content />
+            </div>
+          </section>
+        )
+      }
+    </div>
+  </article>
+</Base>
+
+<style>
+  .project {
+    padding-block: clamp(2rem, 1.5rem + 3vw, 4rem) clamp(4rem, 3rem + 6vw, 8rem);
+    row-gap: clamp(2rem, 1.5rem + 3vw, 3.5rem);
+  }
+  .project__head {
+    grid-column: 1 / -1;
+    display: grid;
+    gap: 1.25rem;
+  }
+  .project__head h1 {
+    font-size: var(--text-h1);
+    max-width: 16ch;
+  }
+  .project__head .lead {
+    max-width: 38ch;
+  }
+  .back {
+    font-size: var(--text-sm);
+  }
+  .banner {
+    max-width: 52ch;
+    padding: 0.75rem 1rem;
+    font-size: var(--text-sm);
+    border: 1px dashed var(--accent);
+  }
+  .banner__tag {
+    margin-right: 0.5rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    font-size: var(--text-xs);
+    color: var(--accent);
+  }
+
+  .project__facts {
+    grid-column: 1 / -1;
+  }
+  .project__facts dl {
+    display: grid;
+    gap: 1.25rem;
+    margin: 0;
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--line);
+  }
+  .project__facts dd {
+    margin: 0.35rem 0 0;
+    color: var(--ink-body);
+  }
+  .project__facts ul {
+    display: grid;
+    gap: 0.35rem;
+  }
+  .project__facts a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+  }
+
+  .project__body {
+    grid-column: 1 / -1;
+    display: grid;
+    gap: clamp(2rem, 1.5rem + 3vw, 3.5rem);
+    min-width: 0;
+  }
+  .project__body section {
+    display: grid;
+    gap: 0.9rem;
+    max-width: 66ch;
+  }
+  .project__body section:has(:global(.photo)) {
+    max-width: none;
+  }
+  .project__body h2 {
+    font-size: var(--text-h3);
+  }
+
+  @media (min-width: 56rem) {
+    .project__facts {
+      grid-column: 1 / 5;
+      grid-row: 2;
+      align-self: start;
+      position: sticky;
+      top: calc(var(--header-h) + 2rem);
+    }
+    .project__body {
+      grid-column: 5 / -1;
+      grid-row: 2;
+    }
+  }
+</style>

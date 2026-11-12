@@ -1,0 +1,95 @@
+---
+import ArrowIcon from './ArrowIcon.astro';
+import { statusLabel, type Project } from '../lib/content';
+import { withBase } from '../lib/url';
+
+interface Props {
+  project: Project;
+}
+const { project } = Astro.props;
+const { title, summary, status, tools, placeholder } = project.data;
+---
+
+<li class="project">
+  <div class="project__main">
+    <h3>
+      <a href={withBase(`/projects/${project.id}/`)} class="project__link">{title}</a>
+    </h3>
+    <p class="project__summary">{summary}</p>
+  </div>
+  <p class="project__meta">
+    <span class="label">{statusLabel[status]}</span>
+    {tools.length > 0 && <span class="project__tools">{tools.join(' · ')}</span>}
+    {placeholder && <span class="label project__flag">Placeholder, hidden in production</span>}
+  </p>
+  <span class="project__arrow"><ArrowIcon /></span>
+</li>
+
+<style>
+  .project {
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 0.5rem 1.5rem;
+    padding-block: 1.6rem;
+    border-top: 1px solid var(--line);
+    transition: background-color 0.3s ease;
+  }
+  .project:last-child {
+    border-bottom: 1px solid var(--line);
+  }
+  .project__main {
+    grid-column: 1;
+  }
+  .project__link {
+    text-decoration: none;
+    color: var(--ink);
+    transition: color 0.2s ease;
+  }
+  /* Stretched link: the whole row is the target */
+  .project__link::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+  }
+  .project__summary {
+    margin-top: 0.5rem;
+    max-width: 52ch;
+    color: var(--ink-muted);
+    font-size: var(--text-sm);
+  }
+  .project__meta {
+    grid-column: 1;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem 1rem;
+    align-items: center;
+    font-size: var(--text-sm);
+    color: var(--ink-muted);
+  }
+  .project__flag {
+    color: var(--accent);
+  }
+  .project__arrow {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+    align-self: center;
+    color: var(--ink-muted);
+    transition: transform 0.4s var(--ease-out), color 0.2s ease;
+  }
+  .project:hover .project__link,
+  .project:focus-within .project__link {
+    color: var(--accent);
+  }
+  .project:hover .project__arrow {
+    color: var(--accent);
+    transform: translateX(0.35rem);
+  }
+  .project:has(.project__link:focus-visible) {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+  }
+  .project__link:focus-visible {
+    outline: none;
+  }
+</style>

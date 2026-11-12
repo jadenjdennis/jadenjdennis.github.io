@@ -1,0 +1,119 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-11-11T00:00:00Z",
+  "title": "Design System: Jaden Dennis",
+  "extensions": {
+    "colorMeta": {
+      "sage": { "role": "primary", "displayName": "Sage", "canonical": "#a3b7a2", "tonalRamp": ["#1d2a1d", "#2f402f", "#455a45", "#5f7860", "#7f977e", "#a3b7a2", "#c6d4c5", "#e6ede5"] },
+      "jade": { "role": "primary", "displayName": "Jade", "canonical": "#26745a", "tonalRamp": ["#0a1f18", "#0f3327", "#154a39", "#1c614a", "#26745a", "#3d9477", "#6fb89f", "#bfe0d3"] },
+      "ground-dark": { "role": "neutral", "displayName": "Warm Black", "canonical": "#111111", "tonalRamp": ["#0b0c0b", "#111111", "#191a19", "#262725", "#3a3b39", "#5a5b58", "#8a8b87", "#dad9d2"] },
+      "paper": { "role": "neutral", "displayName": "Warm Paper", "canonical": "#faf9f6", "tonalRamp": ["#575b52", "#8a8d84", "#b5b6ae", "#d6d5ce", "#e6e4dd", "#f1efe9", "#f3f1eb", "#faf9f6"] }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Display", "purpose": "The hero name only, Young Serif at 8 to 15rem." },
+      "headline": { "displayName": "Headline", "purpose": "Section titles (h2), sticky in the left margin." },
+      "title": { "displayName": "Title", "purpose": "h3, entry, post and category titles in Young Serif." },
+      "lead": { "displayName": "Lead", "purpose": "Opening statements in Hanken Grotesk at 34ch." },
+      "body": { "displayName": "Body", "purpose": "Reading text at 62 to 66ch." },
+      "label": { "displayName": "Label", "purpose": "Uppercase metadata beside content, never above a heading." }
+    },
+    "shadows": [],
+    "motion": [
+      { "name": "ease-out", "value": "cubic-bezier(0.16, 1, 0.3, 1)", "purpose": "All authored movement and hover translations." },
+      { "name": "hero-rise", "value": "1s ease-out, translateY(0.28em), blur(10px) to 0, 80ms stagger per letter from 100ms", "purpose": "The one authored hero motion: the name rises letter by letter." },
+      { "name": "index-stagger", "value": "0.55s ease-out per entry, 38ms stagger; panel clip reveal 0.4s", "purpose": "The Index opening, the one authored UI moment." },
+      { "name": "state-transition", "value": "0.2s ease", "purpose": "Color and underline changes on links and controls." },
+      { "name": "reduced-motion", "value": "All authored animation and smooth scroll live inside prefers-reduced-motion: no-preference", "purpose": "Reduced-motion users get static, fully visible content." }
+    ],
+    "breakpoints": [
+      { "name": "xs", "value": "30rem" },
+      { "name": "sm", "value": "36rem" },
+      { "name": "md", "value": "40rem" },
+      { "name": "hero-grid", "value": "44rem" },
+      { "name": "section-grid", "value": "56rem" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Index Entry",
+      "kind": "nav",
+      "refersTo": "header-index",
+      "description": "Book-style table-of-contents row: serif title, dotted leader, muted hint.",
+      "html": "<ul class=\"ds-index\"><li><a href=\"#\"><span class=\"ds-index-title\">About</span><span class=\"ds-index-leader\"></span><span class=\"ds-index-hint\">Who I am</span></a></li><li><a href=\"#\" aria-current=\"location\"><span class=\"ds-index-title\">Journey</span><span class=\"ds-index-leader\"></span><span class=\"ds-index-hint\">Where I am heading</span></a></li></ul>",
+      "css": ".ds-index { list-style: none; margin: 0; padding: 0 0 0 1rem; max-width: 40rem; background: var(--bg, #111111); } .ds-index li { border-top: 1px solid var(--line, rgb(250 249 246 / 0.14)); } .ds-index li:first-child { border-top: 0; } .ds-index a { display: grid; grid-template-columns: auto minmax(1rem, 1fr) auto; align-items: baseline; column-gap: 0.75rem; padding-block: 0.7rem; text-decoration: none; color: var(--ink, #faf9f6); } .ds-index-title { position: relative; font-family: 'Young Serif', Georgia, serif; font-size: 1.8rem; line-height: 1.15; transition: transform 0.35s cubic-bezier(0.16,1,0.3,1), color 0.2s ease; } .ds-index-leader { align-self: end; height: 0; margin-bottom: 0.45em; border-bottom: 2px dotted var(--line-strong, rgb(250 249 246 / 0.34)); } .ds-index-hint { font-size: 0.9375rem; color: var(--ink-muted, #a3a79f); text-align: right; } .ds-index a:hover .ds-index-title, .ds-index a:focus-visible .ds-index-title { color: var(--accent, #a3b7a2); transform: translateX(0.5rem); } .ds-index a:hover .ds-index-leader { border-color: var(--accent, #a3b7a2); } .ds-index a:focus-visible { outline: 2px solid var(--accent, #a3b7a2); outline-offset: 3px; } .ds-index a[aria-current] .ds-index-title { color: var(--accent, #a3b7a2); } .ds-index a[aria-current] .ds-index-title::before { content: ''; position: absolute; left: -1.1rem; top: 50%; width: 0.45rem; height: 0.45rem; margin-top: -0.2rem; background: var(--accent, #a3b7a2); border-radius: 50%; } .ds-index a[aria-current] .ds-index-leader { border-bottom-style: solid; border-color: var(--accent, #a3b7a2); }"
+    },
+    {
+      "name": "Project Row",
+      "kind": "custom",
+      "refersTo": "rows",
+      "description": "Hairline-bounded row with serif title, muted summary, meta and arrow; the whole row is the link.",
+      "html": "<div class=\"ds-row\"><div><a class=\"ds-row-link\" href=\"#\">Project title</a><p class=\"ds-row-summary\">One honest line about what it is.</p></div><span class=\"ds-row-arrow\" aria-hidden=\"true\">&rarr;</span></div>",
+      "css": ".ds-row { position: relative; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 0.5rem 1.5rem; padding-block: 1.6rem; border-top: 1px solid var(--line, rgb(250 249 246 / 0.14)); border-bottom: 1px solid var(--line, rgb(250 249 246 / 0.14)); } .ds-row-link { font-family: 'Young Serif', Georgia, serif; font-size: 1.6rem; color: var(--ink, #faf9f6); text-decoration: none; transition: color 0.2s ease; } .ds-row-link::after { content: ''; position: absolute; inset: 0; } .ds-row-summary { margin: 0.5rem 0 0; max-width: 52ch; color: var(--ink-muted, #a3a79f); font-size: 0.9375rem; } .ds-row-arrow { align-self: center; color: var(--ink-muted, #a3a79f); transition: transform 0.4s cubic-bezier(0.16,1,0.3,1), color 0.2s ease; } .ds-row:hover .ds-row-link { color: var(--accent, #a3b7a2); } .ds-row:hover .ds-row-arrow { color: var(--accent, #a3b7a2); transform: translateX(0.35rem); } .ds-row:has(.ds-row-link:focus-visible) { outline: 2px solid var(--accent, #a3b7a2); outline-offset: 3px; }"
+    },
+    {
+      "name": "TODO Badge",
+      "kind": "chip",
+      "refersTo": "todo-badge",
+      "description": "Dashed accent tag marking an honest gap beside muted placeholder text.",
+      "html": "<p class=\"ds-todo\"><span class=\"ds-todo-tag\">TODO</span>Biography copy to come.</p>",
+      "css": ".ds-todo { margin: 0; color: var(--ink-muted, #a3a79f); font-size: 0.9375rem; line-height: 1.5; } .ds-todo-tag { display: inline-block; margin-right: 0.5rem; padding: 0.05rem 0.45rem; font-size: 0.6875rem; font-weight: 700; letter-spacing: 0.1em; color: var(--accent, #a3b7a2); border: 1px dashed currentColor; border-radius: 2px; vertical-align: 0.08em; }"
+    },
+    {
+      "name": "Portrait Frame",
+      "kind": "custom",
+      "refersTo": "photo-placeholder",
+      "description": "4:5 dashed placeholder with accent crop marks just outside the corners and a quiet caption.",
+      "html": "<figure class=\"ds-portrait\"><div class=\"ds-marks\"><i></i><i></i><i></i><i></i></div><div class=\"ds-photo\"><span class=\"ds-photo-name\">Jaden</span><span class=\"ds-photo-note\">Portrait to come</span></div><figcaption class=\"ds-caption\">Plate one</figcaption></figure>",
+      "css": ".ds-portrait { position: relative; isolation: isolate; width: 16rem; margin: 1rem; } .ds-marks { position: absolute; inset: -0.9rem; pointer-events: none; } .ds-marks i { position: absolute; width: 1.1rem; height: 1.1rem; border: 0 solid var(--accent, #a3b7a2); } .ds-marks i:nth-child(1) { top: 0; left: 0; border-width: 1.5px 0 0 1.5px; } .ds-marks i:nth-child(2) { top: 0; right: 0; border-width: 1.5px 1.5px 0 0; } .ds-marks i:nth-child(3) { bottom: 0; left: 0; border-width: 0 0 1.5px 1.5px; } .ds-marks i:nth-child(4) { bottom: 0; right: 0; border-width: 0 1.5px 1.5px 0; } .ds-photo { aspect-ratio: 4 / 5; display: flex; flex-direction: column; justify-content: space-between; padding: 1.25rem; background: var(--bg-raised, #191a19); border: 1px dashed var(--line-strong, rgb(250 249 246 / 0.34)); color: var(--ink-muted, #a3a79f); } .ds-photo-name { font-family: 'Young Serif', Georgia, serif; font-size: 1.5rem; color: var(--ink, #faf9f6); } .ds-photo-note, .ds-caption { font-size: 0.8125rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; } .ds-caption { margin-top: 1.1rem; color: var(--ink-muted, #a3a79f); }"
+    },
+    {
+      "name": "Journey Marker",
+      "kind": "custom",
+      "refersTo": "journey",
+      "description": "Square timeline markers on a hairline spine: filled is now, hollow earlier or next, dashed still to be written.",
+      "html": "<div class=\"ds-journey\"><div class=\"ds-j-item ds-j-now\"><h3>Now</h3></div><div class=\"ds-j-item\"><h3>Earlier</h3></div><div class=\"ds-j-item ds-j-todo\"><h3>Next</h3></div></div>",
+      "css": ".ds-journey { position: relative; display: grid; gap: 2rem; padding-left: 1.75rem; } .ds-journey::before { content: ''; position: absolute; left: 0.3125rem; top: 0.4rem; bottom: 0.4rem; width: 1px; background: var(--line-strong, rgb(250 249 246 / 0.34)); } .ds-j-item { position: relative; } .ds-j-item h3 { margin: 0; font-family: 'Young Serif', Georgia, serif; font-weight: 400; font-size: 1.6rem; color: var(--ink, #faf9f6); } .ds-j-item::before { content: ''; position: absolute; left: -1.75rem; top: 0.2rem; width: 0.65rem; height: 0.65rem; background: var(--bg, #111111); border: 1px solid var(--line-strong, rgb(250 249 246 / 0.34)); } .ds-j-now::before { background: var(--accent, #a3b7a2); border-color: var(--accent, #a3b7a2); } .ds-j-todo::before { border-style: dashed; }"
+    },
+    {
+      "name": "Contact Field Row",
+      "kind": "custom",
+      "refersTo": "section-field",
+      "description": "Row inside the single jade field: uppercase label, serif value, arrow, hairlines at 40% paper.",
+      "html": "<div class=\"ds-field\"><a class=\"ds-field-row\" href=\"#\"><span class=\"ds-field-label\">GitHub</span><span class=\"ds-field-value\">jadenjdennis</span><span aria-hidden=\"true\">&nearr;</span></a></div>",
+      "css": ".ds-field { background: #26745a; color: #faf9f6; padding: 2rem; } .ds-field-row { display: grid; grid-template-columns: 7rem minmax(0, 1fr) auto; align-items: baseline; gap: 1rem; padding: 1.1rem 0; text-decoration: none; color: #faf9f6; border-top: 1px solid color-mix(in srgb, #faf9f6 40%, transparent); border-bottom: 1px solid color-mix(in srgb, #faf9f6 40%, transparent); } .ds-field-label { font-size: 0.8125rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; } .ds-field-value { font-family: 'Young Serif', Georgia, serif; font-size: 1.8rem; line-height: 1.2; transition: transform 0.4s cubic-bezier(0.16,1,0.3,1); } .ds-field-row:hover .ds-field-value { transform: translateX(0.5rem); } .ds-field-row:focus-visible { outline: 2px solid #faf9f6; outline-offset: 3px; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Reading Copy",
+    "overview": "The site is a notebook set in type: a near-black page, warm-white ink, hairline rules, and one enormous word (\"Jaden\") instead of a hero template. Navigation is a book-style Index with dotted leaders, not a menu. The person leads; the system stays out of the way and never decorates. Unknowns are shown as dashed, labelled gaps rather than filled with invention, so the system has a visible vocabulary for \"not yet written\".\n\nTwo themes share one structure. Dark is the default; light (html[data-theme=\"light\"]) swaps the neutrals and exchanges the roles of sage and jade. Every rule holds in both. Depth comes from rules, spacing, and one flat filled field, never from shadow, gradient, glass, or cards.",
+    "keyCharacteristics": [
+      "Flat, hairline-ruled, left-margin editorial layout with sticky section titles.",
+      "One serif display voice (Young Serif) over one humanist sans (Hanken Grotesk Variable).",
+      "Sage and jade as a pair, with exactly one filled area: the Contact close.",
+      "Square markers and dashed outlines for the unfinished; crop marks for the portrait.",
+      "One authored hero motion, one authored UI motion (the Index), full reduced-motion handling."
+    ],
+    "rules": [
+      { "name": "The One Field Rule", "body": "Jade is the only filled color field on any page, and it is the Contact close in both themes. Do not add a second filled area.", "section": "colors" },
+      { "name": "The Role Swap Rule", "body": "Sage is the text accent on dark and jade is the text accent on light. Never set sage as text on paper or jade as text on the dark ground.", "section": "colors" },
+      { "name": "The Serif Is For Names Rule", "body": "Young Serif sets headings, entry titles, contact values, and pull quotes. Running text and UI controls stay in Hanken Grotesk.", "section": "typography" },
+      { "name": "The Label Is Metadata Rule", "body": "The uppercase label marks captions and row labels beside content. It does not introduce a heading.", "section": "typography" },
+      { "name": "The No Lift Rule", "body": "Nothing floats. Hover is color to the accent plus a small translate of the title or arrow, never a shadow or background change on a card.", "section": "elevation" }
+    ],
+    "dos": [
+      "Do set section titles in Young Serif at headline size, sticky in the left margin from 56rem up.",
+      "Do separate content with 1px hairlines (14% ink) and let spacing do the rest.",
+      "Do use sage for text and marks on dark, jade for text and marks on light, and the jade field only for the close.",
+      "Do mark every unknown with a dashed outline or a TODO badge instead of inventing content.",
+      "Do keep 44px (2.75rem) hit areas on header controls and make whole rows the link target.",
+      "Do wrap every authored animation in `prefers-reduced-motion: no-preference`."
+    ],
+    "donts": [
+      "Don't use cards, gradients, glass, drop shadows, or hard-offset shadows.",
+      "Don't put a kicker, eyebrow, or small label above a heading.",
+      "Don't center the hero, crop the portrait to a circle, or add skill bars; the portfolio-template look is rejected.",
+      "Don't add a second filled color field or a third accent hue.",
+      "Don't use round markers for the timeline; they are square."
+    ]
+  }
+}

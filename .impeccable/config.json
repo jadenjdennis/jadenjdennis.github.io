@@ -1,0 +1,14 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "design-system-font",
+        "value": "sf mono",
+        "createdAt": "2026-11-12T04:05:55.816Z",
+        "reason": "Claude's call, not user-confirmed: monospace system stack used only for inline code and code blocks in blog prose (.prose code/pre); craft-floor allows monospace for code, so it is not a brand typeface."
+      }
+    ]
+  }
+}

@@ -1,0 +1,53 @@
+---
+import Base from '../../layouts/Base.astro';
+import ProjectRow from '../../components/ProjectRow.astro';
+import Todo from '../../components/Todo.astro';
+import { getProjects } from '../../lib/content';
+
+const projects = await getProjects();
+---
+
+<Base
+  title="Projects"
+  path="/projects/"
+  current="projects"
+  description="Projects by Jaden Dennis, each with what it is, why it exists, how it’s being approached, and where it stands."
+>
+  <div class="wrap page">
+    <header class="page__head">
+      <h1>Projects</h1>
+      <p class="lead">What I’m building or have built, each with the reasoning behind it.</p>
+    </header>
+
+    {
+      projects.length === 0 ? (
+        <div class="empty">
+          <p class="lead">Nothing is published here yet.</p>
+          <Todo>(Jaden) Add the first project as a Markdown file in src/content/projects/. See README.md.</Todo>
+        </div>
+      ) : (
+        <ul>{projects.map((p) => <ProjectRow project={p} />)}</ul>
+      )
+    }
+  </div>
+</Base>
+
+<style>
+  .page {
+    padding-block: clamp(3rem, 2rem + 5vw, 6rem) clamp(4rem, 3rem + 6vw, 8rem);
+    display: grid;
+    gap: clamp(2.5rem, 2rem + 3vw, 4rem);
+  }
+  .page__head {
+    display: grid;
+    gap: 1.5rem;
+  }
+  .page__head .lead {
+    max-width: 38ch;
+  }
+  .empty {
+    display: grid;
+    gap: 1rem;
+    max-width: 48ch;
+  }
+</style>

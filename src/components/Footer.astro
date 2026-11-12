@@ -1,0 +1,45 @@
+---
+import SportsWidget from './SportsWidget.astro';
+import { site } from '../config/site';
+import { withBase } from '../lib/url';
+
+const year = new Date().getFullYear();
+---
+
+<footer class="site-footer">
+  <div class="wrap">
+    <SportsWidget />
+
+    <div class="colophon">
+      <p>© {year} {site.fullName}</p>
+      <p class="muted">A work in progress. Built with Astro, hosted on GitHub Pages.</p>
+      <a class="colophon__top" href={withBase('/#home')}>Back to top ↑</a>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    border-top: 1px solid var(--line);
+    padding-block: clamp(2.5rem, 2rem + 3vw, 4.5rem) 2rem;
+    background: var(--bg);
+  }
+  .colophon {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1.5rem;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-top: clamp(2.5rem, 2rem + 3vw, 4rem);
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--line);
+    font-size: var(--text-sm);
+  }
+  .colophon__top {
+    color: var(--ink-muted);
+    text-decoration: none;
+  }
+  .colophon__top:hover {
+    color: var(--accent);
+  }
+</style>

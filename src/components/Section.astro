@@ -1,0 +1,27 @@
+---
+import type { SectionId } from '../config/site';
+
+interface Props {
+  id: SectionId;
+  title: string;
+  hint?: string;
+  class?: string;
+  /** Title above a full-width body. */
+  wide?: boolean;
+  /** Less vertical padding (empty sections). */
+  compact?: boolean;
+}
+const { id, title, hint, class: className, wide = false, compact = false } = Astro.props;
+---
+
+<section id={id} class:list={['section', { 'section--wide': wide, 'section--compact': compact }, className]} data-section={id} aria-labelledby={`${id}-title`}>
+  <div class="wrap grid12">
+    <header class="section__head">
+      <h2 id={`${id}-title`}>{title}</h2>
+      {hint && <p>{hint}</p>}
+    </header>
+    <div class="section__body">
+      <slot />
+    </div>
+  </div>
+</section>

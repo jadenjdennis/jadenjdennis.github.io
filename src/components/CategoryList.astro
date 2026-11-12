@@ -1,0 +1,96 @@
+---
+import ArrowIcon from './ArrowIcon.astro';
+import { categories } from '../config/site';
+import { withBase } from '../lib/url';
+
+interface Props {
+  counts?: Record<string, number>;
+  /** Highlight one category (used on its own page). */
+  current?: string;
+}
+const { counts = {}, current } = Astro.props;
+---
+
+<nav aria-label="Blog categories">
+  <ul class="cats">
+    {
+      categories.map((c) => (
+        <li>
+          <a href={withBase(`/blog/category/${c.slug}/`)} aria-current={current === c.slug ? 'page' : undefined}>
+            <span class="cats__title">{c.title}</span>
+            <span class="cats__blurb">{c.blurb}</span>
+            <span class="cats__count tabular label">{counts[c.slug] ?? 0}</span>
+            <ArrowIcon />
+          </a>
+        </li>
+      ))
+    }
+  </ul>
+</nav>
+
+<style>
+  .cats li {
+    border-top: 1px solid var(--line);
+  }
+  .cats li:last-child {
+    border-bottom: 1px solid var(--line);
+  }
+  .cats a {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto auto;
+    align-items: center;
+    gap: 0.25rem 1rem;
+    padding-block: 1.1rem;
+    text-decoration: none;
+    color: var(--ink);
+  }
+  .cats__title {
+    grid-column: 1 / -1;
+    font-family: var(--font-serif);
+    font-size: clamp(1.3rem, 1.1rem + 0.8vw, 1.7rem);
+    line-height: 1.2;
+    transition: color 0.2s ease, transform 0.4s var(--ease-out);
+  }
+  .cats__blurb {
+    grid-column: 1;
+    font-size: var(--text-sm);
+    color: var(--ink-muted);
+    max-width: 48ch;
+  }
+  .cats__count {
+    grid-column: 2;
+  }
+  .cats a :global(svg) {
+    grid-column: 3;
+    color: var(--ink-muted);
+    transition: transform 0.4s var(--ease-out), color 0.2s ease;
+  }
+  .cats a:hover .cats__title,
+  .cats a[aria-current] .cats__title {
+    color: var(--accent);
+  }
+  .cats a:hover .cats__title {
+    transform: translateX(0.4rem);
+  }
+  .cats a:hover :global(svg) {
+    color: var(--accent);
+    transform: translateX(0.3rem);
+  }
+  @media (min-width: 40rem) {
+    .cats a {
+      grid-template-columns: minmax(12rem, 18rem) minmax(0, 1fr) auto auto;
+    }
+    .cats__title {
+      grid-column: 1;
+    }
+    .cats__blurb {
+      grid-column: 2;
+    }
+    .cats__count {
+      grid-column: 3;
+    }
+    .cats a :global(svg) {
+      grid-column: 4;
+    }
+  }
+</style>

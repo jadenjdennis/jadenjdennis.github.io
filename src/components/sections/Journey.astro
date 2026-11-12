@@ -1,0 +1,150 @@
+---
+import Section from '../Section.astro';
+import Todo from '../Todo.astro';
+import { journey } from '../../data/journey';
+---
+
+<Section id="journey" title="Journey" hint="Where I am, and where I’m headed." wide>
+  <ol class="journey">
+    {
+      journey.map((entry, i) => (
+        <li class:list={['journey__item', { 'journey__item--now': i === 0, 'journey__item--todo': entry.placeholder }]}>
+          <p class="journey__when label">{entry.when}</p>
+          <div class="journey__content">
+            <h3>{entry.title}</h3>
+            {entry.placeholder ? (
+              <Todo>{entry.body.replace(/^TODO\s*/, '')}</Todo>
+            ) : (
+              <p>{entry.body}</p>
+            )}
+          </div>
+        </li>
+      ))
+    }
+  </ol>
+</Section>
+
+<style>
+  .journey {
+    position: relative;
+    display: grid;
+    gap: clamp(2rem, 1.5rem + 2vw, 3.25rem);
+    padding-left: 1.75rem;
+  }
+  /* The spine. It draws itself as the section scrolls into view where supported. */
+  .journey::before {
+    content: '';
+    position: absolute;
+    left: 0.3125rem;
+    top: 0.4rem;
+    bottom: 0.4rem;
+    width: 1px;
+    background: var(--line-strong);
+    transform-origin: top;
+  }
+  .journey__item {
+    position: relative;
+    display: grid;
+    gap: 0.5rem;
+  }
+  /* Square marker: filled = now, hollow = earlier/next, dashed = still to be written */
+  .journey__item::before {
+    content: '';
+    position: absolute;
+    left: -1.75rem;
+    top: 0.2rem;
+    width: 0.65rem;
+    height: 0.65rem;
+    background: var(--bg);
+    border: 1px solid var(--line-strong);
+  }
+  .journey__item--now::before {
+    background: var(--accent);
+    border-color: var(--accent);
+  }
+  .journey__item--todo::before {
+    border-style: dashed;
+  }
+  .journey__content {
+    display: grid;
+    gap: 0.6rem;
+    max-width: 54ch;
+  }
+  .journey__content p:not(.todo) {
+    color: var(--ink-body);
+  }
+
+  @media (min-width: 40rem) and (max-width: 55.99rem) {
+    .journey__item {
+      grid-template-columns: 7.5rem minmax(0, 1fr);
+      column-gap: var(--col-gap);
+    }
+    .journey__when {
+      padding-top: 0.2rem;
+    }
+  }
+
+  /* Wide screens: the timeline runs across the page, one column per stage. */
+  @media (min-width: 56rem) {
+    .journey {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      column-gap: var(--col-gap);
+      padding: 2rem 0 0;
+    }
+    .journey::before {
+      left: 0;
+      right: 0;
+      top: 0.3rem;
+      bottom: auto;
+      width: auto;
+      height: 1px;
+      transform-origin: left;
+    }
+    .journey__item {
+      grid-template-columns: minmax(0, 1fr);
+      column-gap: 0;
+      align-content: start;
+    }
+    .journey__item::before {
+      left: 0;
+      top: -2rem;
+    }
+    .journey__when {
+      padding-top: 0;
+    }
+    .journey__content h3 {
+      font-size: clamp(1.6rem, 1.3rem + 1vw, 2.2rem);
+    }
+  }
+
+  @supports (animation-timeline: view()) {
+    @media (prefers-reduced-motion: no-preference) {
+      .journey::before {
+        animation: draw-y linear both;
+        animation-timeline: view();
+        animation-range: entry 5% cover 55%;
+      }
+      @media (min-width: 56rem) {
+        .journey::before {
+          animation-name: draw-x;
+        }
+      }
+    }
+  }
+  @keyframes draw-y {
+    from {
+      transform: scaleY(0);
+    }
+    to {
+      transform: scaleY(1);
+    }
+  }
+  @keyframes draw-x {
+    from {
+      transform: scaleX(0);
+    }
+    to {
+      transform: scaleX(1);
+    }
+  }
+</style>

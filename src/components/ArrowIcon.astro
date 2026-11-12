@@ -1,0 +1,29 @@
+---
+interface Props {
+  /** "up-right" for external links, "right" for internal navigation. */
+  dir?: 'up-right' | 'right';
+  size?: number;
+}
+const { dir = 'right', size = 18 } = Astro.props;
+---
+
+<svg
+  width={size}
+  height={size}
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="1.6"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+  aria-hidden="true"
+  focusable="false"
+>
+  {
+    dir === 'up-right' ? (
+      <path d="M7 17 17 7M8.5 7H17v8.5" />
+    ) : (
+      <path d="M4 12h16M14 6l6 6-6 6" />
+    )
+  }
+</svg>

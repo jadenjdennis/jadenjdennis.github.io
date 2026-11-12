@@ -1,0 +1,143 @@
+---
+import Base from '../../layouts/Base.astro';
+import PostRow from '../../components/PostRow.astro';
+import CategoryList from '../../components/CategoryList.astro';
+import ArrowIcon from '../../components/ArrowIcon.astro';
+import { categoryFor, formatDate, isoDate, readingMinutes, getPosts } from '../../lib/content';
+import { categories } from '../../config/site';
+import { withBase } from '../../lib/url';
+
+const posts = await getPosts();
+const featured = posts.filter((p) => p.data.featured);
+const counts = Object.fromEntries(categories.map((c) => [c.slug, posts.filter((p) => p.data.category === c.slug).length]));
+
+// Archive grouped by year, newest first
+const byYear = new Map<number, typeof posts>();
+for (const p of posts) {
+  const y = p.data.date.getUTCFullYear();
+  byYear.set(y, [...(byYear.get(y) ?? []), p]);
+}
+---
+
+<Base
+  title="Blog"
+  path="/blog/"
+  current="blog"
+  description="Notes and essays from Jaden Dennis: things he’s learning, reflections on faith and life, and ideas worth a second look."
+>
+  <div class="wrap page">
+    <header class="page__head">
+      <h1>Blog</h1>
+      <p class="lead">A notebook and a publication in one place: short notes when something clicks, longer essays when it has settled.</p>
+    </header>
+
+    {
+      featured.length > 0 && (
+        <section class="featured" aria-labelledby="featured-title">
+          <h2 id="featured-title" class="sr-only">Featured</h2>
+          <ul>
+            {featured.map((p) => (
+              <li>
+                <h3><a href={withBase(`/blog/${p.id}/`)}>{p.data.title}</a></h3>
+                <p class="featured__desc">{p.data.description}</p>
+                <p class="featured__meta">
+                  Featured · <time class="tabular" datetime={isoDate(p.data.date)}>{formatDate(p.data.date)}</time> · {categoryFor(p.data.category).title} · {p.data.kind === 'essay' ? 'Essay' : 'Note'} · <span class="tabular">{readingMinutes(p.body)} min read</span>
+                </p>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )
+    }
+
+    <section class="block" aria-labelledby="cats-title">
+      <h2 id="cats-title" class="block__title">Categories</h2>
+      <CategoryList counts={counts} />
+    </section>
+
+    <section class="block" aria-labelledby="archive-title">
+      <h2 id="archive-title" class="block__title">Archive</h2>
+      {
+        posts.length === 0 ? (
+          <div class="empty">
+            <p class="lead">Nothing published yet.</p>
+            <p>The first notes and essays will show up here, newest first, grouped by year.</p>
+            <p><a class="arrow-link" href={withBase('/')}>Back to the homepage <ArrowIcon /></a></p>
+          </div>
+        ) : (
+          [...byYear.entries()].map(([year, list]) => (
+            <div class="year">
+              <h3 class="tabular">{year}</h3>
+              <ul>{list.map((p) => <PostRow post={p} />)}</ul>
+            </div>
+          ))
+        )
+      }
+    </section>
+  </div>
+</Base>
+
+<style>
+  .page {
+    padding-block: clamp(3rem, 2rem + 5vw, 6rem) clamp(4rem, 3rem + 6vw, 8rem);
+    display: grid;
+    gap: clamp(3rem, 2rem + 4vw, 5.5rem);
+  }
+  .page__head {
+    display: grid;
+    gap: 1.5rem;
+  }
+  .page__head .lead {
+    max-width: 40ch;
+  }
+  .block {
+    display: grid;
+    gap: 1.25rem;
+  }
+  .block__title {
+    font-size: var(--text-h3);
+  }
+  .featured ul {
+    display: grid;
+    gap: 3rem;
+  }
+  .featured li {
+    display: grid;
+    gap: 0.9rem;
+    max-width: 46rem;
+  }
+  .featured h3 {
+    font-size: var(--text-h2);
+    line-height: 1.06;
+  }
+  .featured h3 a {
+    text-decoration: none;
+  }
+  .featured h3 a:hover {
+    color: var(--accent);
+  }
+  .featured__desc {
+    max-width: 52ch;
+  }
+  .featured__meta {
+    font-size: var(--text-sm);
+    color: var(--ink-muted);
+  }
+  .year {
+    display: grid;
+    gap: 0.75rem;
+    margin-top: 1rem;
+  }
+  .year h3 {
+    font-size: var(--text-sm);
+    font-family: var(--font-sans);
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    color: var(--ink-muted);
+  }
+  .empty {
+    display: grid;
+    gap: 1rem;
+    max-width: 48ch;
+  }
+</style>

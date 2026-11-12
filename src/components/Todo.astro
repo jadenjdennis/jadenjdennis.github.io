@@ -1,0 +1,13 @@
+---
+/**
+ * Visible placeholder for a fact Jaden still needs to supply.
+ * Find every one with: grep -rn "TODO" src
+ */
+interface Props {
+  inline?: boolean;
+}
+const { inline = false } = Astro.props;
+const Tag = inline ? 'span' : 'p';
+---
+
+<Tag class="todo"><span class="todo__tag">TODO</span><slot /></Tag>

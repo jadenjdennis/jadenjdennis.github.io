@@ -1,0 +1,83 @@
+---
+import Section from '../Section.astro';
+import ProjectRow from '../ProjectRow.astro';
+import Todo from '../Todo.astro';
+import ArrowIcon from '../ArrowIcon.astro';
+import type { Project } from '../../lib/content';
+import { withBase } from '../../lib/url';
+
+interface Props {
+  projects: Project[];
+}
+const { projects } = Astro.props;
+---
+
+<Section id="projects" title="Projects" hint="Work, as it exists." compact={projects.length === 0}>
+  {
+    projects.length > 0 ? (
+      <div class="stack">
+        <ul>{projects.map((p) => <ProjectRow project={p} />)}</ul>
+        <a class="arrow-link" href={withBase('/projects/')}>
+          All projects <ArrowIcon />
+        </a>
+      </div>
+    ) : (
+      <div class="empty">
+        <p class="lead">Nothing is published here yet.</p>
+        <p class="empty__body">
+          When I have something worth showing, each project will get its own page: what it is, why I
+          started it, how I’m going about it, and where it stands today.
+        </p>
+        <Todo>(Jaden) Add the first project as a Markdown file in src/content/projects/. See README.md.</Todo>
+        <div class="ghost" aria-hidden="true">
+          <span class="ghost__title">Project title</span>
+          <span class="ghost__summary">A sentence on what it is and why it exists</span>
+          <span class="ghost__status label">Status</span>
+        </div>
+      </div>
+    )
+  }
+</Section>
+
+<style>
+  .stack {
+    display: grid;
+    gap: 2rem;
+    justify-items: start;
+  }
+  .stack ul {
+    width: 100%;
+  }
+  .empty {
+    display: grid;
+    gap: 1.25rem;
+    max-width: 52ch;
+  }
+  .empty__body {
+    color: var(--ink-body);
+  }
+  /* A quiet outline of the row a real project will occupy */
+  .ghost {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 0.25rem 1.5rem;
+    margin-top: 1rem;
+    padding-block: 1.25rem;
+    border-block: 1px dashed var(--line-strong);
+    color: var(--ink-muted);
+  }
+  .ghost__title {
+    font-family: var(--font-serif);
+    font-size: var(--text-h3);
+    line-height: 1.15;
+  }
+  .ghost__summary {
+    grid-column: 1;
+    font-size: var(--text-sm);
+  }
+  .ghost__status {
+    grid-column: 2;
+    grid-row: 1;
+    align-self: center;
+  }
+</style>

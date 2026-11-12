@@ -1,0 +1,76 @@
+---
+import Base from '../../../layouts/Base.astro';
+import PostRow from '../../../components/PostRow.astro';
+import CategoryList from '../../../components/CategoryList.astro';
+import ArrowIcon from '../../../components/ArrowIcon.astro';
+import { categories } from '../../../config/site';
+import { getPosts } from '../../../lib/content';
+import { withBase } from '../../../lib/url';
+
+export function getStaticPaths() {
+  return categories.map((category) => ({ params: { category: category.slug }, props: { category } }));
+}
+
+const { category } = Astro.props;
+const posts = (await getPosts()).filter((p) => p.data.category === category.slug);
+---
+
+<Base title={category.title} path={`/blog/category/${category.slug}/`} current="blog" description={category.blurb}>
+  <div class="wrap page">
+    <p><a class="arrow-link back" href={withBase('/blog/')}>← All writing</a></p>
+    <header class="page__head">
+      <h1>{category.title}</h1>
+      <p class="lead">{category.blurb}</p>
+    </header>
+
+    {
+      posts.length === 0 ? (
+        <div class="empty">
+          <p>Nothing in this category yet.</p>
+          <p>
+            <a class="arrow-link" href={withBase('/blog/')}>
+              Browse the blog <ArrowIcon />
+            </a>
+          </p>
+        </div>
+      ) : (
+        <ul>{posts.map((p) => <PostRow post={p} />)}</ul>
+      )
+    }
+
+    <section class="block" aria-labelledby="other-title">
+      <h2 id="other-title" class="block__title">Other categories</h2>
+      <CategoryList current={category.slug} />
+    </section>
+  </div>
+</Base>
+
+<style>
+  .page {
+    padding-block: clamp(2rem, 1.5rem + 3vw, 4rem) clamp(4rem, 3rem + 6vw, 8rem);
+    display: grid;
+    gap: clamp(2rem, 1.5rem + 3vw, 3.5rem);
+  }
+  .back {
+    font-size: var(--text-sm);
+  }
+  .page__head {
+    display: grid;
+    gap: 1.25rem;
+  }
+  .page__head .lead {
+    max-width: 40ch;
+  }
+  .block {
+    display: grid;
+    gap: 1.25rem;
+    margin-top: 1.5rem;
+  }
+  .block__title {
+    font-size: var(--text-h3);
+  }
+  .empty {
+    display: grid;
+    gap: 1rem;
+  }
+</style>

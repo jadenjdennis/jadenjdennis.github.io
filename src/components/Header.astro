@@ -1,0 +1,406 @@
+---
+import { sections, site, type SectionId } from '../config/site';
+import { withBase } from '../lib/url';
+
+interface Props {
+  /** Marks an Index entry as the current page when not on the homepage. */
+  current?: SectionId;
+}
+const { current } = Astro.props;
+---
+
+<header class="site-header" data-site-header>
+  <div class="wrap site-header__bar">
+    <a class="wordmark" href={withBase('/')} aria-label={`${site.fullName}, home`}>{site.fullName}</a>
+
+    <div class="site-header__actions">
+      <button
+        type="button"
+        class="theme-toggle"
+        data-theme-toggle
+        aria-label="Switch to light theme"
+        title="Switch theme"
+      >
+        <svg class="icon-moon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M20.5 14.2A8.5 8.5 0 1 1 9.8 3.5a6.8 6.8 0 0 0 10.7 10.7Z"></path>
+        </svg>
+        <svg class="icon-sun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="12" cy="12" r="4"></circle>
+          <path d="M12 2.5v2.2M12 19.3v2.2M4.9 4.9l1.6 1.6M17.5 17.5l1.6 1.6M2.5 12h2.2M19.3 12h2.2M4.9 19.1l1.6-1.6M17.5 6.5l1.6-1.6"></path>
+        </svg>
+      </button>
+
+      <details class="index" data-index>
+        <summary class="index__toggle">
+          <span>Index</span>
+          <span class="index__glyph" aria-hidden="true"><i></i><i></i></span>
+        </summary>
+
+        <div class="index__scrim" data-index-scrim aria-hidden="true"></div>
+        <nav class="index__panel" aria-label="Site index">
+          <div class="wrap">
+            <ul class="index__list">
+              {
+                sections.map((s) => (
+                  <li style={`--i:${sections.indexOf(s)}`}>
+                    <a
+                      href={withBase(`/#${s.id}`)}
+                      data-index-link={s.id}
+                      aria-current={current === s.id ? 'page' : undefined}
+                    >
+                      <span class="index__title">{s.title}</span>
+                      <span class="index__leader" aria-hidden="true"></span>
+                      <span class="index__hint">{s.hint}</span>
+                    </a>
+                  </li>
+                ))
+              }
+            </ul>
+            <p class="index__foot label">{site.fullName} · Personal site, in progress</p>
+          </div>
+        </nav>
+      </details>
+    </div>
+  </div>
+</header>
+
+<style>
+  .site-header {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    height: var(--header-h);
+    background: var(--bg);
+    border-bottom: 1px solid var(--line);
+  }
+  .site-header__bar {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+  .wordmark {
+    font-size: var(--text-sm);
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    color: var(--ink);
+    text-decoration: none;
+  }
+  .wordmark:hover {
+    color: var(--accent);
+  }
+  .site-header__actions {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+  }
+
+  /* Theme toggle: quiet icon button, 44px hit area */
+  .theme-toggle {
+    display: grid;
+    place-items: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    padding: 0;
+    background: none;
+    border: 0;
+    border-radius: 50%;
+    color: var(--ink-muted);
+    cursor: pointer;
+    transition: color 0.2s ease;
+  }
+  .theme-toggle:hover {
+    color: var(--ink);
+  }
+  .icon-sun {
+    display: none;
+  }
+  :global(:root[data-theme='dark']) .icon-moon {
+    display: none;
+  }
+  :global(:root[data-theme='dark']) .icon-sun {
+    display: block;
+  }
+
+  /* Index disclosure */
+  .index__toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    height: 2.75rem;
+    padding-inline: 0.5rem 0.25rem;
+    font-size: var(--text-sm);
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    color: var(--ink);
+    cursor: pointer;
+    list-style: none;
+    user-select: none;
+  }
+  .index__toggle::-webkit-details-marker {
+    display: none;
+  }
+  .index__toggle:hover {
+    color: var(--accent);
+  }
+  /* Two-line glyph that becomes an X */
+  .index__glyph {
+    position: relative;
+    width: 1.125rem;
+    height: 0.75rem;
+  }
+  .index__glyph i {
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 1.5px;
+    background: currentColor;
+    transition: transform 0.35s var(--ease-out), top 0.35s var(--ease-out);
+  }
+  .index__glyph i:first-child {
+    top: 0.1rem;
+  }
+  .index__glyph i:last-child {
+    top: 0.5rem;
+  }
+  .index[open] .index__glyph i:first-child {
+    top: 0.3rem;
+    transform: rotate(45deg);
+  }
+  .index[open] .index__glyph i:last-child {
+    top: 0.3rem;
+    transform: rotate(-45deg);
+  }
+
+  .index__panel {
+    position: fixed;
+    inset: var(--header-h) 0 auto 0;
+    max-height: calc(100svh - var(--header-h));
+    overflow-y: auto;
+    padding-block: clamp(1rem, 0.5rem + 2vw, 2rem) clamp(1.25rem, 0.5rem + 2.5vw, 2.25rem);
+    background: var(--bg);
+    border-bottom: 1px solid var(--line-strong);
+  }
+  /* Dims the page beneath so the open Index reads as the one active layer. */
+  .index__scrim {
+    position: fixed;
+    inset: var(--header-h) 0 0 0;
+    background: color-mix(in srgb, var(--bg) 82%, transparent);
+  }
+  .index__list {
+    max-width: 52rem;
+    margin-left: auto;
+  }
+  .index__list li {
+    border-top: 1px solid var(--line);
+  }
+  .index__list li:first-child {
+    border-top: 0;
+  }
+  .index__list a {
+    display: grid;
+    grid-template-columns: auto minmax(1rem, 1fr) auto;
+    align-items: baseline;
+    column-gap: 0.75rem;
+    padding-block: 0.7rem;
+    text-decoration: none;
+    color: var(--ink);
+  }
+  .index__title {
+    position: relative;
+    font-family: var(--font-serif);
+    font-size: clamp(1.4rem, 1.1rem + 1.2vw, 2.1rem);
+    line-height: 1.15;
+    transition: transform 0.35s var(--ease-out), color 0.2s ease;
+  }
+  .index__leader {
+    align-self: end;
+    height: 0;
+    margin-bottom: 0.45em;
+    border-bottom: 2px dotted var(--line-strong);
+    transition: border-color 0.2s ease;
+  }
+  .index__hint {
+    font-size: var(--text-sm);
+    color: var(--ink-muted);
+    text-align: right;
+  }
+  .index__list a:hover .index__title,
+  .index__list a:focus-visible .index__title {
+    color: var(--accent);
+    transform: translateX(0.5rem);
+  }
+  .index__list a:hover .index__leader {
+    border-color: var(--accent);
+  }
+  /* Current location: a marked entry, never colour alone (dot + underline weight) */
+  .index__list a[aria-current] .index__title {
+    color: var(--accent);
+  }
+  .index__list a[aria-current] .index__title::before {
+    content: '';
+    position: absolute;
+    left: -1.1rem;
+    top: 50%;
+    width: 0.45rem;
+    height: 0.45rem;
+    margin-top: -0.2rem;
+    background: var(--accent);
+    border-radius: 50%;
+  }
+  .index__list a[aria-current] .index__leader {
+    border-bottom-style: solid;
+    border-color: var(--accent);
+  }
+  .index__foot {
+    max-width: 52rem;
+    margin: 1.25rem 0 0 auto;
+    padding-top: 1rem;
+    border-top: 1px solid var(--line);
+  }
+
+  /* Wide screens: the Index mirrors the page's section layout, with a quiet margin note in the left column. */
+  @media (min-width: 56rem) {
+    .index__panel > :global(.wrap) {
+      display: grid;
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      column-gap: var(--col-gap);
+    }
+    .index__list {
+      grid-column: 5 / -1;
+      grid-row: 1;
+      max-width: none;
+      margin: 0;
+    }
+    .index__foot {
+      grid-column: 1 / 5;
+      grid-row: 1;
+      align-self: end;
+      max-width: 22ch;
+      margin: 0;
+      padding: 0 0 0.8rem;
+      border: 0;
+      line-height: 1.7;
+    }
+  }
+
+  @media (max-width: 36rem) {
+    .index__list a {
+      grid-template-columns: 1fr;
+      row-gap: 0.1rem;
+      padding-block: 0.75rem;
+    }
+    .index__leader {
+      display: none;
+    }
+    .index__hint {
+      text-align: left;
+    }
+    .index__list a[aria-current] .index__title::before {
+      left: -0.9rem;
+    }
+    .index__list {
+      padding-left: 0.9rem;
+    }
+  }
+
+  /* Entries arrive one after another when the Index opens: the page's one authored UI moment. */
+  @media (prefers-reduced-motion: no-preference) {
+    .index[open] .index__list li {
+      animation: index-in 0.55s var(--ease-out) both;
+      animation-delay: calc(var(--i) * 38ms);
+    }
+    .index[open] .index__panel {
+      animation: panel-in 0.4s var(--ease-out) both;
+    }
+  }
+  @keyframes index-in {
+    from {
+      opacity: 0;
+      transform: translateY(-0.5rem);
+      filter: blur(3px);
+    }
+  }
+  @keyframes panel-in {
+    from {
+      opacity: 0;
+      clip-path: inset(0 0 100% 0);
+    }
+    to {
+      opacity: 1;
+      clip-path: inset(0 0 -1px 0);
+    }
+  }
+</style>
+
+<script>
+  const root = document.documentElement;
+
+  // ---- Theme toggle -------------------------------------------------------
+  const toggle = document.querySelector<HTMLButtonElement>('[data-theme-toggle]');
+  const themeMeta = document.querySelector('meta[data-theme-color]');
+  const syncToggle = () => {
+    const light = root.dataset.theme === 'light';
+    toggle?.setAttribute('aria-label', light ? 'Switch to dark theme' : 'Switch to light theme');
+    themeMeta?.setAttribute('content', light ? '#faf9f6' : '#111111');
+  };
+  syncToggle();
+  toggle?.addEventListener('click', () => {
+    const next = root.dataset.theme === 'light' ? 'dark' : 'light';
+    root.dataset.theme = next;
+    try {
+      localStorage.setItem('theme', next);
+    } catch {
+      /* storage unavailable: the choice just lasts for this visit */
+    }
+    syncToggle();
+  });
+
+  // ---- Index disclosure ---------------------------------------------------
+  const index = document.querySelector<HTMLDetailsElement>('[data-index]');
+  const summary = index?.querySelector('summary');
+  const close = (returnFocus = false) => {
+    if (!index?.open) return;
+    index.open = false;
+    if (returnFocus) summary?.focus();
+  };
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') close(true);
+  });
+  document.addEventListener('click', (e) => {
+    if (index?.open && e.target instanceof Node && !index.contains(e.target)) close();
+  });
+  index?.querySelectorAll('a').forEach((a) => a.addEventListener('click', () => close()));
+  index?.querySelector('[data-index-scrim]')?.addEventListener('click', () => close());
+
+  // ---- Where am I (homepage only): mark the Index entry for the section in view ----
+  const links = new Map<string, HTMLAnchorElement>();
+  index?.querySelectorAll<HTMLAnchorElement>('[data-index-link]').forEach((a) => {
+    links.set(a.dataset.indexLink ?? '', a);
+  });
+  const sectionEls = [...document.querySelectorAll<HTMLElement>('[data-section]')];
+  if (sectionEls.length && 'IntersectionObserver' in window) {
+    const visible = new Map<string, number>();
+    const setCurrent = (id: string | undefined) => {
+      links.forEach((a, key) => {
+        if (key === id) a.setAttribute('aria-current', 'location');
+        else if (a.getAttribute('aria-current') === 'location') a.removeAttribute('aria-current');
+      });
+    };
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          const id = (entry.target as HTMLElement).dataset.section!;
+          if (entry.isIntersecting) visible.set(id, entry.intersectionRatio);
+          else visible.delete(id);
+        }
+        // The topmost section that is in the reading band wins.
+        const first = sectionEls.find((el) => visible.has(el.dataset.section!));
+        setCurrent(first?.dataset.section);
+      },
+      { rootMargin: '-35% 0px -55% 0px', threshold: [0, 1] },
+    );
+    sectionEls.forEach((el) => io.observe(el));
+  }
+</script>

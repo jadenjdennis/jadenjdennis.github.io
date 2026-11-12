@@ -1,0 +1,129 @@
+---
+import { render } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import { categoryFor, formatDate, getPosts, isoDate, readingMinutes } from '../../lib/content';
+import { site } from '../../config/site';
+import { withBase } from '../../lib/url';
+
+export async function getStaticPaths() {
+  const posts = await getPosts();
+  return posts.map((post) => ({ params: { slug: post.id }, props: { post } }));
+}
+
+const { post } = Astro.props;
+const { Content } = await render(post);
+const { title, description, date, category, kind, placeholder } = post.data;
+const cat = categoryFor(category);
+const minutes = readingMinutes(post.body);
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'BlogPosting',
+  headline: title,
+  description,
+  datePublished: isoDate(date),
+  author: { '@type': 'Person', name: site.fullName },
+  mainEntityOfPage: new URL(`/blog/${post.id}/`, site.url).toString(),
+};
+---
+
+<Base
+  title={title}
+  description={description}
+  path={`/blog/${post.id}/`}
+  type="article"
+  published={isoDate(date)}
+  current="blog"
+  noindex={placeholder}
+  jsonLd={jsonLd}
+>
+  <article class="wrap article">
+    <p><a class="arrow-link back" href={withBase('/blog/')}>← All writing</a></p>
+
+    {
+      placeholder && (
+        <p class="banner">
+          <span class="banner__tag">Placeholder</span> Sample content for layout work. Hidden from the production build.
+        </p>
+      )
+    }
+
+    <header class="article__head">
+      <h1>{title}</h1>
+      <p class="lead">{description}</p>
+      <p class="article__byline">
+        <a class="article__cat" href={withBase(`/blog/category/${cat.slug}/`)}>{cat.title}</a>
+        <span>{kind === 'essay' ? 'Essay' : 'Note'}</span>
+        <span>{site.fullName}</span>
+        <time class="tabular" datetime={isoDate(date)}>{formatDate(date)}</time>
+        <span class="tabular">{minutes} min read</span>
+      </p>
+    </header>
+
+    <div class="prose">
+      <Content />
+    </div>
+
+    <footer class="article__foot">
+      <a class="arrow-link" href={withBase('/blog/')}>← All writing</a>
+      <a class="arrow-link" href={withBase(`/blog/category/${cat.slug}/`)}>More in {cat.title}</a>
+    </footer>
+  </article>
+</Base>
+
+<style>
+  .article {
+    padding-block: clamp(2rem, 1.5rem + 3vw, 4rem) clamp(4rem, 3rem + 6vw, 8rem);
+    display: grid;
+    gap: clamp(2rem, 1.5rem + 3vw, 3.5rem);
+  }
+  .back {
+    font-size: var(--text-sm);
+  }
+  .banner {
+    max-width: 66ch;
+    padding: 0.75rem 1rem;
+    font-size: var(--text-sm);
+    border: 1px dashed var(--accent);
+    color: var(--ink-body);
+  }
+  .banner__tag {
+    margin-right: 0.5rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    font-size: var(--text-xs);
+    color: var(--accent);
+  }
+  .article__head {
+    display: grid;
+    gap: 1.25rem;
+    max-width: 48rem;
+  }
+  .article__head h1 {
+    font-size: var(--text-h1);
+  }
+  .article__head .lead {
+    max-width: 38ch;
+    color: var(--ink-body);
+  }
+  .article__cat {
+    color: var(--accent);
+  }
+  .article__byline {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem 1.25rem;
+    font-size: var(--text-sm);
+    color: var(--ink-muted);
+  }
+  .article__foot {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem 2rem;
+    max-width: 66ch;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--line);
+    font-size: var(--text-sm);
+  }
+</style>
