@@ -2,14 +2,14 @@
 import Photo from '../Photo.astro';
 import { site } from '../../config/site';
 
-const letters = [...site.name];
+const letters = [...site.intro];
 // Name the person in the caption only once a real portrait exists; a placeholder must not imply it depicts him.
 const hasPortrait = Object.keys(import.meta.glob('/src/assets/photos/portrait.{jpg,jpeg,png,webp,avif}')).length > 0;
 ---
 
 <section id="home" class="hero" data-section="home" aria-labelledby="hero-title">
   <div class="wrap hero__grid">
-    <h1 id="hero-title" class="hero__name" aria-label={site.name}>
+    <h1 id="hero-title" class="hero__name" aria-label={site.intro}>
       {letters.map((ch, i) => <span class="ch" style={`--i:${i}`} aria-hidden="true">{ch}</span>)}
     </h1>
 

@@ -4,7 +4,7 @@
  */
 export const site = {
   /** Prominent name (hero). */
-  Intro: 'Hey!',
+  intro: 'Hey!',
   /** Full name (small wordmark, metadata). */
   fullName: 'Jaden Dennis',
   url: 'https://jadenjdennis.github.io',
