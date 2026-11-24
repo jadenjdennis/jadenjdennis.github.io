@@ -30,8 +30,8 @@ export const site = {
 export const sections = [
   { id: 'home', title: 'Home', hint: 'start here' },
   { id: 'about', title: 'About', hint: 'a short, honest introduction' },
-  { id: 'interests', title: 'Interests & Exploration', hint: 'what I’m curious about' },
   { id: 'projects', title: 'Projects', hint: 'work, as it exists' },
+  { id: 'interests', title: 'Interests & Exploration', hint: 'what I’m curious about' },
   { id: 'journey', title: 'Journey', hint: 'where I am, where I’m headed' },
   { id: 'blog', title: 'Blog', hint: 'notes and essays' },
   { id: 'contact', title: 'Contact', hint: 'say hello' },

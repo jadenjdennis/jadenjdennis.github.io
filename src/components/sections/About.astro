@@ -6,7 +6,7 @@ import Todo from '../Todo.astro';
 
 <Section id="about" title="About" hint="A short, honest introduction.">
   <div class="about">
-    <p class="lead">I’m Jaden, someone who enjoys understanding how things work.</p>
+    <p class="lead about__lead">I’m Jaden, someone who enjoys understanding how things work.</p>
 
     <div class="about__cols">
       <div class="about__text">
@@ -41,7 +41,13 @@ import Todo from '../Todo.astro';
   .about__cols {
     display: grid;
     gap: 2rem;
-    align-items: start;
+    align-items: stretch;
+  }
+  .about__lead {
+    max-width: none;
+    font-size: clamp(1.9rem, 1.2rem + 3vw, 3.5rem);
+    line-height: 1.15;
+    letter-spacing: -0.015em;
   }
   .about__text {
     display: grid;
@@ -61,8 +67,12 @@ import Todo from '../Todo.astro';
       column-gap: var(--col-gap);
     }
     :global(.about__photo) {
-      margin-top: 3.5rem;
-      justify-self: end;
+      justify-self: stretch;
+      max-width: none;
+      height: 100%;
+      min-height: 26rem;
+      aspect-ratio: auto !important;
+      border-radius: 1.25rem;
     }
   }
 </style>
